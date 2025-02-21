@@ -1,101 +1,186 @@
+"use client";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import classNames from "classnames";
+import useAddTodo from "./hooks/addTodo";
+import useGetAllTodos from "./hooks/getAllTodos";
+import useDeleteTodoById from "./hooks/deleteTodoById";
 import Image from "next/image";
+import Todo from "./components/todo";
+import { ClipLoader, PacmanLoader } from "react-spinners";
+import useDeleteAllTodos from "./hooks/deleteAllTodos";
+
+const updateTodo = async ({ id, title, completed }) => {
+  const res = await fetch("/api/todos", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, title, completed }),
+  });
+
+  if (!res.ok) throw new Error("Todo güncellenirken hata oluştu");
+  return res.json();
+};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [newTodo, setNewTodo] = useState("");
+  const [editTodoId, setEditTodoId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // QueryClient'ı almak
+  const queryClient = useQueryClient();
+
+  const { data: todos, isLoading: isTodosLoading, error } = useGetAllTodos();
+
+  const { mutate: createTodo, isPending: isPendingTodo } = useAddTodo({
+    onSuccess: async (data) => {
+      setNewTodo("");
+      console.log("Başarıyla Eklendi", data);
+      queryClient.invalidateQueries(["todos"]);
+    },
+  });
+
+  const { mutate: deleteTodoById } = useDeleteTodoById({
+    onSuccess: async (data) => {
+      console.log("Başarıyla Silindi", data);
+      queryClient.invalidateQueries(["todos"]);
+    },
+  });
+
+  const { mutate: deleteAll } = useDeleteAllTodos({
+    onSuccess: async (data) => {
+      console.log("Başarıyla Silindi", data);
+      queryClient.invalidateQueries(["todos"]);
+    },
+  });
+
+  // useMutation ile todo güncelleme
+  const { mutate: modifyTodo } = useMutation({
+    mutationFn: updateTodo,
+    onSuccess: () => {
+      // Başarılı olduğunda todos'u yeniden al
+      queryClient.invalidateQueries(["todos"]);
+    },
+  });
+
+  if (!isTodosLoading && error) return <p>Hata: {error.message}</p>;
+
+  const handleAddTodo = () => {
+    createTodo({ title: newTodo });
+  };
+
+  const handleEditTodo = () => {
+    const todoToUpdate = todos.find((todo) => todo.id === editTodoId);
+    modifyTodo({
+      id: editTodoId,
+      title: editTitle,
+      completed: todoToUpdate?.completed,
+    });
+  };
+
+  const handleToggleComplete = (id, completed) => {
+    const todoToUpdate = todos.find((todo) => todo.id === id);
+    modifyTodo({ id, title: todoToUpdate?.title, completed: !completed });
+  };
+
+  return (
+    <main className="w-full h-full flex flex-col ">
+      {/* Banner */}
+      <div className="w-full h-[300px] relative">
+        <div className="w-full h-full relative overflow-hidden">
+          <img
+            src="https://images.wallpaperscraft.com/image/single/mountains_snow_winter_84608_1280x720.jpg"
+            alt="banner"
+            className="w-full h-full object-cover overflow-hidden"
+          />
+          <div className="w-full h-full absolute top-0 left-0 bg-gradient-to-bl to-[#9F4EE1] from-[#77A0F8] opacity-60 " />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <div className="w-full max-w-lg mx-auto h-1/2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
+          <div className="w-full h-full flex flex-col justify-between ">
+            <div className="w-full flex items-center justify-between">
+              <div className="text-4xl text-white font-semibold font-sans">
+                TODO
+              </div>
+              <div className="">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  className="size-8 text-white fill-white"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div className="w-full h-auto min-h-[50px] bg-white text-black rounded-md flex items-center justify-center overflow-hidden px-4 ">
+              <input
+                type="text"
+                value={newTodo}
+                onChange={(e) => setNewTodo(e.target.value)}
+                className="flex items-center justify-start  w-full h-full outline-none  text-black pr-10  "
+                placeholder="📝 Yeni todo ekleyin..."
+              />
+              <button
+                onClick={handleAddTodo}
+                className={classNames(
+                  "p-1 bg-[#47A3EA] rounded-full flex items-center cursor-pointer pointer-events-auto justify-center opacity-100 transition-opacity duration-300 ease-linear text-white ",
+                  {
+                    "!opacity-0 !cursor-not-allowed !pointer-events-none":
+                      newTodo.length == 0,
+                  }
+                )}
+              >
+                {isPendingTodo ? (
+                  <ClipLoader size={20} color="#ffffff" />
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="size-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* TODOS */}
+      <div className="w-full max-w-lg mx-auto border border-[#f1f1f1] bg-white shadow-md rounded-md min-h-[300px] max-h-[600px] overflow-y-auto flex flex-col  -mt-12 z-10 mb-10">
+        {isTodosLoading ? (
+          <div className="w-full h-[300px] text-center p-4 flex items-center justify-center">
+            <PacmanLoader color="#47A3EA" size={20} />
+          </div>
+        ) : todos.length === 0 ? (
+          <div className=" w-full h-[300px]  flex flex-col items-center justify-center gap-x-4 ">
+            <span className="text-black ">Buralar boş gözüküyor...</span>
+          </div>
+        ) : (
+          todos.map((todo) => <Todo key={todo.id} todo={todo} />)
+        )}
+      </div>
+
+      <button
+        onClick={() => {
+          deleteAll();
+        }}
+      >
+        Tümünü sil
+      </button>
+    </main>
   );
 }
