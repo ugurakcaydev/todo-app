@@ -48,9 +48,9 @@ export const apiClient = {
   },
 
   //Update Todo
-  updateTodo: async ({ id, title, completed }) => {
+  updateTodo: async ({ id, title, completed, isPinned }) => {
     try {
-      const response = await api.patch(`/`, { id, title, completed });
+      const response = await api.patch(`/`, { id, title, completed, isPinned });
       return response.data;
     } catch (error) {
       console.error("Failed to update todo:", error);

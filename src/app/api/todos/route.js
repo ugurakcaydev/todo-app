@@ -17,12 +17,21 @@ export async function GET() {
 // ✅ POST: Yeni bir Todo ekle
 export async function POST(req) {
   try {
-    const { title } = await req.json();
+    const { title, isPinned, endDate } = await req.json();
     if (!title)
       return NextResponse.json({ error: "Başlık gerekli" }, { status: 400 });
 
+    // endDate yoksa, bugünden 1 gün sonrası olarak ayarla
+    const defaultEndDate = new Date();
+    defaultEndDate.setDate(defaultEndDate.getDate() + 1);
+
     const newTodo = await prisma.todo.create({
-      data: { title, completed: false },
+      data: {
+        title,
+        completed: false,
+        isPinned: isPinned ?? false, // Varsayılan olarak false
+        endDate: endDate ? new Date(endDate) : defaultEndDate, // Varsayılan olarak yarın
+      },
     });
 
     return NextResponse.json(newTodo, { status: 201 });
@@ -34,15 +43,18 @@ export async function POST(req) {
   }
 }
 
-// ✅ PATCH: Todo'nun tamamlanma durumunu güncelle//
-export async function PATCH(req, { params }) {
+// ✅ PATCH: Todo'yu güncelle (title, completed, isPinned, endDate)
+export async function PATCH(req) {
   try {
-    const { id, title, completed } = await req.json();
-    console.log(id, title, completed, "aaa");
+    const { id, title, completed, isPinned, endDate } = await req.json();
+
     // ID yoksa veya güncellenecek veri yoksa hata döndür
-    if (!id || (completed === undefined && !title)) {
+    if (
+      !id ||
+      (completed === undefined && !title && isPinned === undefined && !endDate)
+    ) {
       return NextResponse.json(
-        { error: "ID ve başlık veya tamamlanma durumu gerekli" },
+        { error: "ID ve en az bir güncelleme alanı gerekli" },
         { status: 400 }
       );
     }
@@ -53,6 +65,8 @@ export async function PATCH(req, { params }) {
       data: {
         title: title || undefined,
         completed: completed !== undefined ? completed : undefined,
+        isPinned: isPinned !== undefined ? isPinned : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
       },
     });
 

@@ -4,12 +4,13 @@ import { apiClient } from "../services/apiClient";
 const useUpdateTodo = (options) => {
   return useMutation({
     mutationKey: ["updateTodo"],
-    mutationFn: async ({ id, title, completed }) => {
+    mutationFn: async ({ id, title, completed, isPinned }) => {
       try {
         const data = await apiClient.updateTodo({
           id: id,
           title: title,
           completed: completed,
+          isPinned: isPinned,
         });
         return data;
       } catch (error) {

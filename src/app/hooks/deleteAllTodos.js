@@ -9,13 +9,13 @@ const useDeleteAllTodos = (options) => {
         return response;
       } catch (error) {
         console.error("Tüm Todolar silinirken hata oluştu:", error);
-        throw error; // Hata durumunda fırlatılıyor
+        throw error;
       }
     },
     onError: (error) => {
       console.error("Tüm Todolar silinirken hata oluştu:", error);
     },
-    ...options, // Opsiyonel ek parametreler
+    ...options,
   });
 };
 

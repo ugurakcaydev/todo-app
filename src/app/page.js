@@ -7,7 +7,7 @@ import useGetAllTodos from "./hooks/getAllTodos";
 import useDeleteTodoById from "./hooks/deleteTodoById";
 import Image from "next/image";
 import Todo from "./components/todo";
-import { ClipLoader, PacmanLoader } from "react-spinners";
+import { ClimbingBoxLoader, ClipLoader, PacmanLoader } from "react-spinners";
 import useDeleteAllTodos from "./hooks/deleteAllTodos";
 
 const updateTodo = async ({ id, title, completed }) => {
@@ -39,25 +39,9 @@ export default function Home() {
     },
   });
 
-  const { mutate: deleteTodoById } = useDeleteTodoById({
+  const { mutate: deleteAll, isPending: isPendingDelete } = useDeleteAllTodos({
     onSuccess: async (data) => {
       console.log("Başarıyla Silindi", data);
-      queryClient.invalidateQueries(["todos"]);
-    },
-  });
-
-  const { mutate: deleteAll } = useDeleteAllTodos({
-    onSuccess: async (data) => {
-      console.log("Başarıyla Silindi", data);
-      queryClient.invalidateQueries(["todos"]);
-    },
-  });
-
-  // useMutation ile todo güncelleme
-  const { mutate: modifyTodo } = useMutation({
-    mutationFn: updateTodo,
-    onSuccess: () => {
-      // Başarılı olduğunda todos'u yeniden al
       queryClient.invalidateQueries(["todos"]);
     },
   });
@@ -68,24 +52,16 @@ export default function Home() {
     createTodo({ title: newTodo });
   };
 
-  const handleEditTodo = () => {
-    const todoToUpdate = todos.find((todo) => todo.id === editTodoId);
-    modifyTodo({
-      id: editTodoId,
-      title: editTitle,
-      completed: todoToUpdate?.completed,
-    });
-  };
-
-  const handleToggleComplete = (id, completed) => {
-    const todoToUpdate = todos.find((todo) => todo.id === id);
-    modifyTodo({ id, title: todoToUpdate?.title, completed: !completed });
-  };
+  const sortedTodos = todos?.sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return 0;
+  });
 
   return (
     <main className="w-full h-full flex flex-col ">
       {/* Banner */}
-      <div className="w-full h-[300px] relative">
+      <div className="w-full h-[330px] relative">
         <div className="w-full h-full relative overflow-hidden">
           <img
             src="https://images.wallpaperscraft.com/image/single/mountains_snow_winter_84608_1280x720.jpg"
@@ -123,7 +99,7 @@ export default function Home() {
                 value={newTodo}
                 onChange={(e) => setNewTodo(e.target.value)}
                 className="flex items-center justify-start  w-full h-full outline-none  text-black pr-10  "
-                placeholder="📝 Yeni todo ekleyin..."
+                placeholder="Todo ekleyin... 📝 "
               />
               <button
                 onClick={handleAddTodo}
@@ -159,28 +135,40 @@ export default function Home() {
         </div>
       </div>
 
-      {/* TODOS */}
-      <div className="w-full max-w-lg mx-auto border border-[#f1f1f1] bg-white shadow-md rounded-md min-h-[300px] max-h-[600px] overflow-y-auto flex flex-col  -mt-12 z-10 mb-10">
-        {isTodosLoading ? (
-          <div className="w-full h-[300px] text-center p-4 flex items-center justify-center">
-            <PacmanLoader color="#47A3EA" size={20} />
+      {/* CONTAINER */}
+      <div className="w-full max-w-lg mx-auto flex flex-col gap-y-6 -mt-12 z-[1] ">
+        {/* TODOS */}
+        <div className="w-full relative max-w-lg mx-auto border border-[#f1f1f1] bg-white shadow-md rounded-md min-h-[327px] max-h-[360px] overflow-y-auto  flex flex-col ">
+          {isTodosLoading ? (
+            <div className="w-full h-[300px] text-center p-4 flex items-center justify-center">
+              <ClimbingBoxLoader color="#47A3EA" size={15} />
+            </div>
+          ) : todos.length === 0 ? (
+            <div className=" w-full h-[298px]  flex flex-col items-center justify-center  ">
+              Buralar boş gözüküyor...
+            </div>
+          ) : (
+            sortedTodos.map((todo) => <Todo key={todo.id} todo={todo} />)
+          )}
+        </div>
+
+        {todos?.length > 0 && (
+          <div className="w-full flex items-center justify-end">
+            <button
+              onClick={() => {
+                deleteAll();
+              }}
+              className="text-sm flex items-center min-w-[85px] justify-center px-4 py-1 border border-white text-white bg-red-500 rounded-md hover:opacity-95"
+            >
+              {isPendingDelete ? (
+                <ClipLoader size={20} color="#ffffff" />
+              ) : (
+                "Temizle"
+              )}
+            </button>
           </div>
-        ) : todos.length === 0 ? (
-          <div className=" w-full h-[300px]  flex flex-col items-center justify-center gap-x-4 ">
-            <span className="text-black ">Buralar boş gözüküyor...</span>
-          </div>
-        ) : (
-          todos.map((todo) => <Todo key={todo.id} todo={todo} />)
         )}
       </div>
-
-      <button
-        onClick={() => {
-          deleteAll();
-        }}
-      >
-        Tümünü sil
-      </button>
     </main>
   );
 }

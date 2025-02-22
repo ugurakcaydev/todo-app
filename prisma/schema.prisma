@@ -14,8 +14,10 @@ datasource db {
 }
 
 model Todo {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  completed   Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  completed Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  endDate   DateTime?
+  isPinned  Boolean   @default(false)
 }
