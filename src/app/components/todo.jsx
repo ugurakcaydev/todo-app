@@ -94,9 +94,12 @@ function Todo({ todo }) {
             {formatDate(todo.createdAt)}
           </span>
           <div
-            className={classNames("text-black font-sans w-full", {
-              "line-through text-zinc-400 decoration-red-500": todo.completed,
-            })}
+            className={classNames(
+              "text-black font-sans flex flex-1 max-w-[342px] overflow-auto",
+              {
+                "line-through text-zinc-400 decoration-red-500": todo.completed,
+              }
+            )}
           >
             {editTodoId === todo.id ? (
               <input
@@ -173,7 +176,7 @@ function Todo({ todo }) {
                 setEditTodoId(todo.id);
                 setNewTitle(todo.title);
               }}
-              className=" flex items-center justify-center group"
+              className="flex items-center justify-center group"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

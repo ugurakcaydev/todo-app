@@ -107,7 +107,7 @@ export default function Home() {
                     handleAddTodo();
                   }
                 }}
-                className="flex flex-1 items-center justify-start  h-full outline-none  text-black pr-10  "
+                className="flex flex-1 items-center justify-start  h-full outline-none  text-black pr-4  "
                 placeholder="Todo ekleyin... 📝 "
               />
               <div
