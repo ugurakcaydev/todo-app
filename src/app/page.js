@@ -1,14 +1,15 @@
 "use client";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import useAddTodo from "./hooks/addTodo";
 import useGetAllTodos from "./hooks/getAllTodos";
-import useDeleteTodoById from "./hooks/deleteTodoById";
-import Image from "next/image";
 import Todo from "./components/todo";
-import { ClimbingBoxLoader, ClipLoader, PacmanLoader } from "react-spinners";
+import { ClipLoader } from "react-spinners";
 import useDeleteAllTodos from "./hooks/deleteAllTodos";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDate } from "./utils/formatDate";
 
 const updateTodo = async ({ id, title, completed }) => {
   const res = await fetch("/api/todos", {
@@ -23,10 +24,8 @@ const updateTodo = async ({ id, title, completed }) => {
 
 export default function Home() {
   const [newTodo, setNewTodo] = useState("");
-  const [editTodoId, setEditTodoId] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // QueryClient'ı almak
   const queryClient = useQueryClient();
 
   const { data: todos, isLoading: isTodosLoading, error } = useGetAllTodos();
@@ -61,12 +60,12 @@ export default function Home() {
   return (
     <main className="w-full h-full flex flex-col ">
       {/* Banner */}
-      <div className="w-full h-[330px] relative">
-        <div className="w-full h-full relative overflow-hidden">
+      <div className="w-full h-[300px] relative">
+        <div className="w-full h-full  ">
           <img
             src="https://images.wallpaperscraft.com/image/single/mountains_snow_winter_84608_1280x720.jpg"
             alt="banner"
-            className="w-full h-full object-cover overflow-hidden"
+            className="w-full h-full object-cover"
           />
           <div className="w-full h-full absolute top-0 left-0 bg-gradient-to-bl to-[#9F4EE1] from-[#77A0F8] opacity-60 " />
         </div>
@@ -93,55 +92,71 @@ export default function Home() {
                 </svg>
               </div>
             </div>
-            <div className="w-full h-auto min-h-[50px] bg-white text-black rounded-md flex items-center justify-center overflow-hidden px-4 ">
+
+            {/* INPUT */}
+            <div className="w-full relative h-auto min-h-[50px] bg-white text-black rounded-md flex items-center justify-center px-4 ">
+              <span className="absolute right-0 -top-8 text-white font-bold text-[20px]">
+                {formatDate(new Date())}
+              </span>
               <input
                 type="text"
                 value={newTodo}
                 onChange={(e) => setNewTodo(e.target.value)}
-                className="flex items-center justify-start  w-full h-full outline-none  text-black pr-10  "
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddTodo();
+                  }
+                }}
+                className="flex flex-1 items-center justify-start  h-full outline-none  text-black pr-10  "
                 placeholder="Todo ekleyin... 📝 "
               />
-              <button
-                onClick={handleAddTodo}
+              <div
                 className={classNames(
-                  "p-1 bg-[#47A3EA] rounded-full flex items-center cursor-pointer pointer-events-auto justify-center opacity-100 transition-opacity duration-300 ease-linear text-white ",
+                  "flex items-center justify-end gap-x-2  opacity-100 transition-opacity duration-300 ease-linear",
                   {
-                    "!opacity-0 !cursor-not-allowed !pointer-events-none":
+                    "!opacity-0 *:cursor-not-allowed *:pointer-events-none":
                       newTodo.length == 0,
                   }
                 )}
               >
-                {isPendingTodo ? (
-                  <ClipLoader size={20} color="#ffffff" />
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="size-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                    />
-                  </svg>
-                )}
-              </button>
+                <button
+                  onClick={handleAddTodo}
+                  className={classNames(
+                    "p-1 bg-[#47A3EA] rounded-full flex items-center cursor-pointer pointer-events-auto justify-center text-white "
+                  )}
+                >
+                  {isPendingTodo ? (
+                    <ClipLoader size={20} color="#ffffff" />
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="size-4"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* CONTAINER */}
-      <div className="w-full max-w-lg mx-auto flex flex-col gap-y-6 -mt-12 z-[1] ">
+      <div className="w-full max-w-lg mx-auto flex flex-col gap-y-4 -mt-10 z-[1] ">
         {/* TODOS */}
         <div className="w-full relative max-w-lg mx-auto border border-[#f1f1f1] bg-white shadow-md rounded-md min-h-[327px] max-h-[360px] overflow-y-auto  flex flex-col ">
           {isTodosLoading ? (
             <div className="w-full h-[300px] text-center p-4 flex items-center justify-center">
-              <ClimbingBoxLoader color="#47A3EA" size={15} />
+              <ClipLoader color="#47A3EA" size={30} />
             </div>
           ) : todos.length === 0 ? (
             <div className=" w-full h-[298px]  flex flex-col items-center justify-center  ">

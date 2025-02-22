@@ -4,11 +4,11 @@ export const apiClient = {
   //Add Todo
   addTodo: async (todo) => {
     try {
-      const response = await api.post("/", todo); // Burada `todo` nesnesini gönderiyoruz
-      return response.data; // Sadece `data` döndürüyoruz, böylece daha temiz bir kullanım olur.
+      const response = await api.post("/", todo);
+      return response.data;
     } catch (error) {
       console.error("Failed to add todo:", error);
-      throw error; // Hata fırlatılacak, üst seviyede yakalanabilir.
+      throw error;
     }
   },
 
@@ -28,11 +28,11 @@ export const apiClient = {
   //Delete All Todos
   deleteAllTodos: async () => {
     try {
-      const response = await api.delete("/?all=true"); // API'nin DELETEALL endpoint'ine istek gönderiyoruz
-      return response.data; // Gelen response'u döndürüyoruz
+      const response = await api.delete("/?all=true");
+      return response.data;
     } catch (error) {
       console.error("Failed to delete all todos:", error);
-      throw error; // Hata fırlatılır
+      throw error;
     }
   },
 

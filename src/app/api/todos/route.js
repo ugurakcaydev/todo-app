@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "../../../../prisma/prisma";
 
-// ✅ GET: Tüm Todo'ları getir
+//GET: Tüm Todo'ları getir
 export async function GET() {
   try {
     const todos = await prisma.todo.findMany();
@@ -14,14 +14,13 @@ export async function GET() {
   }
 }
 
-// ✅ POST: Yeni bir Todo ekle
+// POST: Yeni bir Todo ekle
 export async function POST(req) {
   try {
     const { title, isPinned, endDate } = await req.json();
     if (!title)
       return NextResponse.json({ error: "Başlık gerekli" }, { status: 400 });
 
-    // endDate yoksa, bugünden 1 gün sonrası olarak ayarla
     const defaultEndDate = new Date();
     defaultEndDate.setDate(defaultEndDate.getDate() + 1);
 
@@ -29,8 +28,8 @@ export async function POST(req) {
       data: {
         title,
         completed: false,
-        isPinned: isPinned ?? false, // Varsayılan olarak false
-        endDate: endDate ? new Date(endDate) : defaultEndDate, // Varsayılan olarak yarın
+        isPinned: isPinned ?? false,
+        endDate: endDate ? new Date(endDate) : defaultEndDate,
       },
     });
 
@@ -43,12 +42,10 @@ export async function POST(req) {
   }
 }
 
-// ✅ PATCH: Todo'yu güncelle (title, completed, isPinned, endDate)
 export async function PATCH(req) {
   try {
     const { id, title, completed, isPinned, endDate } = await req.json();
 
-    // ID yoksa veya güncellenecek veri yoksa hata döndür
     if (
       !id ||
       (completed === undefined && !title && isPinned === undefined && !endDate)
@@ -59,7 +56,6 @@ export async function PATCH(req) {
       );
     }
 
-    // Güncelleme işlemi
     const updatedTodo = await prisma.todo.update({
       where: { id },
       data: {
@@ -80,7 +76,7 @@ export async function PATCH(req) {
   }
 }
 
-// ✅ DELETE: Belirtilen ID'deki Todo'yu sil
+// DELETE: Belirtilen ID'deki Todo'yu sil
 export async function DELETE(req) {
   try {
     const { searchParams } = new URL(req.url);

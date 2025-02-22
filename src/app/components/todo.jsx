@@ -5,12 +5,11 @@ import classNames from "classnames";
 import useUpdateTodo from "../hooks/updateTodo";
 import { ClipLoader } from "react-spinners";
 import { LuPin, LuPinOff } from "react-icons/lu";
-import { BsPinAngle } from "react-icons/bs";
 import { formatDate } from "../utils/formatDate";
 
 function Todo({ todo }) {
   const [editTodoId, setEditTodoId] = useState(null);
-  const [newTitle, setNewTitle] = useState(todo.title); // Başlık için state
+  const [newTitle, setNewTitle] = useState(todo.title);
   const queryClient = useQueryClient();
   const { mutate: deleteTodoById, isPending: isPendingDeleteTodo } =
     useDeleteTodoById({
@@ -35,14 +34,13 @@ function Todo({ todo }) {
   };
 
   const handleTitleUpdate = () => {
+    if (!newTitle) return;
     if (newTitle !== todo.title) {
       updateTodo({ id: todo.id, title: newTitle });
     } else {
       setEditTodoId(null);
     }
   };
-
-  console.log(todo);
 
   return (
     <div
@@ -91,7 +89,7 @@ function Todo({ todo }) {
             )}
           </div>
         </label>
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-1">
           <span className="text-xs text-zinc-400 ">
             {formatDate(todo.createdAt)}
           </span>
@@ -105,7 +103,12 @@ function Todo({ todo }) {
                 type="text"
                 value={newTitle}
                 onChange={handleTitleChange}
-                className="outline-none border border-zinc-200 rounded-md px-3 py-1 w-full"
+                className={classNames(
+                  "outline-none border border-zinc-200 rounded-md px-3 py-1 w-full",
+                  {
+                    "border border-red-500": !newTitle,
+                  }
+                )}
                 placeholder="Yeni başlık..."
               />
             ) : (
@@ -139,7 +142,12 @@ function Todo({ todo }) {
             ) : (
               <button
                 onClick={handleTitleUpdate}
-                className="bg-white size-5 border border-green-500 rounded-full flex items-center justify-center"
+                className={classNames(
+                  "bg-white size-5 border border-green-500 rounded-full flex items-center justify-center",
+                  {
+                    "cursor-not-allowed border-zinc-300": !newTitle,
+                  }
+                )}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +155,9 @@ function Todo({ todo }) {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="size-3 text-green-500"
+                  className={classNames("size-3 text-green-500", {
+                    "text-zinc-300": !newTitle,
+                  })}
                 >
                   <path
                     strokeLinecap="round"
