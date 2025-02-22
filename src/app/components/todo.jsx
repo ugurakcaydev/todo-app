@@ -106,7 +106,7 @@ function Todo({ todo }) {
                 className={classNames(
                   "outline-none border border-zinc-200 rounded-md px-3 py-1 w-full",
                   {
-                    "border border-red-500": !newTitle,
+                    "border !border-red-500": !newTitle,
                   }
                 )}
                 placeholder="Yeni başlık..."
