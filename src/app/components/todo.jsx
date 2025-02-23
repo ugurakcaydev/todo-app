@@ -94,12 +94,9 @@ function Todo({ todo }) {
             {formatDate(todo.createdAt)}
           </span>
           <div
-            className={classNames(
-              "text-black font-sans flex flex-1   overflow-auto",
-              {
-                "line-through text-zinc-400 decoration-red-500": todo.completed,
-              }
-            )}
+            className={classNames("text-black font-sans flex flex-1", {
+              "line-through text-zinc-400 decoration-red-500": todo.completed,
+            })}
           >
             {editTodoId === todo.id ? (
               <input
@@ -115,7 +112,7 @@ function Todo({ todo }) {
                 placeholder="Yeni başlık..."
               />
             ) : (
-              <span className="w-full max-w-[130px] sm:max-w-[342px] whitespace-nowrap overflow-x-auto ">
+              <span className="w-full max-w-[180px]  sm:max-w-[342px] whitespace-nowrap overflow-x-auto ">
                 {todo.title}
               </span>
             )}
