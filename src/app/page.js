@@ -70,7 +70,7 @@ export default function Home() {
           <div className="w-full h-full absolute top-0 left-0 bg-gradient-to-bl to-[#9F4EE1] from-[#77A0F8] opacity-60 " />
         </div>
         <div className="w-full max-w-lg mx-auto h-1/2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
-          <div className="w-full h-full flex flex-col justify-between ">
+          <div className="w-full h-full flex flex-col justify-between px-4 sm:px-0 ">
             <div className="w-full flex items-center justify-between">
               <div className="text-4xl text-white font-semibold font-sans">
                 TODO
@@ -151,9 +151,9 @@ export default function Home() {
       </div>
 
       {/* CONTAINER */}
-      <div className="w-full max-w-lg mx-auto flex flex-col gap-y-4 -mt-10 z-[1] ">
+      <div className="w-full max-w-lg mx-auto flex flex-col gap-y-4 -mt-10 z-[1] px-2 sm:px-0 ">
         {/* TODOS */}
-        <div className="w-full relative max-w-lg mx-auto border border-[#f1f1f1] bg-white shadow-md rounded-md min-h-[327px] max-h-[360px] overflow-y-auto  flex flex-col ">
+        <div className="w-full relative max-w-lg mx-auto border border-[#f1f1f1] bg-white shadow-md rounded-md min-h-[327px] max-h-[335px] sm:max-h-[360px] overflow-y-auto  flex flex-col ">
           {isTodosLoading ? (
             <div className="w-full h-[300px] text-center p-4 flex items-center justify-center">
               <ClipLoader color="#47A3EA" size={30} />

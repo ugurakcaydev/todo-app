@@ -95,7 +95,7 @@ function Todo({ todo }) {
           </span>
           <div
             className={classNames(
-              "text-black font-sans flex flex-1 max-w-[342px] overflow-auto",
+              "text-black font-sans flex flex-1   overflow-auto",
               {
                 "line-through text-zinc-400 decoration-red-500": todo.completed,
               }
@@ -115,12 +115,14 @@ function Todo({ todo }) {
                 placeholder="Yeni başlık..."
               />
             ) : (
-              todo.title
+              <span className="w-full max-w-[130px] sm:max-w-[342px] whitespace-nowrap overflow-x-auto ">
+                {todo.title}
+              </span>
             )}
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-end gap-x-3 *:opacity-0 *:group-hover:opacity-100 *:transition-opacity *:duration-300 *:ease-linear">
+      <div className="flex items-center justify-end gap-x-3  sm:*:opacity-0 *:group-hover:opacity-100 *:transition-opacity *:duration-300 *:ease-linear">
         {/* PIN button*/}
         {!todo.completed && (
           <button
