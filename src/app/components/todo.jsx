@@ -3,30 +3,33 @@ import useDeleteTodoById from "../hooks/deleteTodoById";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import useUpdateTodo from "../hooks/updateTodo";
-import { ClipLoader } from "react-spinners";
+import { BounceLoader, ClipLoader } from "react-spinners";
 import { LuPin, LuPinOff } from "react-icons/lu";
 import { formatDate } from "../utils/formatDate";
 
 function Todo({ todo }) {
   const [editTodoId, setEditTodoId] = useState(null);
   const [newTitle, setNewTitle] = useState(todo.title);
+  const [isCheckedLoading, setIsCheckedLoading] = useState(false);
   const queryClient = useQueryClient();
-  const { mutate: deleteTodoById, isPending: isPendingDeleteTodo } =
+  const { mutate: deleteTodoById, isLoading: isLoadingDeleteTodo } =
     useDeleteTodoById({
       onSuccess: async () => {
         queryClient.invalidateQueries(["todos"]);
       },
     });
 
-  const { mutate: updateTodo, isPending: isPendingUpdate } = useUpdateTodo({
+  const { mutate: updateTodo, isLoading: isLoadingUpdate } = useUpdateTodo({
     onSuccess: async () => {
       queryClient.invalidateQueries(["todos"]);
       setEditTodoId(null);
+      setIsCheckedLoading(false);
     },
   });
 
   const handleToggleComplete = () => {
     updateTodo({ id: todo.id, completed: !todo.completed });
+    setIsCheckedLoading(true);
   };
 
   const handleTitleChange = (e) => {
@@ -47,7 +50,7 @@ function Todo({ todo }) {
       className={classNames(
         "w-full relative  group min-h-[65px] px-4 border-b hover:bg-zinc-50 hover:cursor-pointer  border-b-zinc-200 flex items-center justify-between gap-x-5",
         {
-          "animate-pulse": isPendingDeleteTodo,
+          "animate-pulse": isLoadingDeleteTodo,
         }
       )}
     >
@@ -71,21 +74,25 @@ function Todo({ todo }) {
               }
             )}
           >
-            {todo.completed && (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-3 text-green-500"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m4.5 12.75 6 6 9-13.5"
-                />
-              </svg>
+            {isCheckedLoading ? (
+              <BounceLoader color="#22c55e" size={16} />
+            ) : (
+              todo.completed && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-3 text-green-500"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m4.5 12.75 6 6 9-13.5"
+                  />
+                </svg>
+              )
             )}
           </div>
         </label>
@@ -139,7 +146,7 @@ function Todo({ todo }) {
         {/* Eğer todo tamamlanmamışsa ve edit modundaysak */}
         {!todo.completed &&
           (editTodoId === todo.id ? (
-            isPendingUpdate ? (
+            isLoadingUpdate ? (
               <ClipLoader color="#22c55e" size={20} />
             ) : (
               <button
