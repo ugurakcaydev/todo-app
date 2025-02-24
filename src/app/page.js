@@ -7,7 +7,6 @@ import useGetAllTodos from "./hooks/getAllTodos";
 import Todo from "./components/todo";
 import { ClipLoader } from "react-spinners";
 import useDeleteAllTodos from "./hooks/deleteAllTodos";
-import "react-datepicker/dist/react-datepicker.css";
 import { formatDate } from "./utils/formatDate";
 import Image from "next/image";
 
