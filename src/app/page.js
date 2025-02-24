@@ -7,40 +7,26 @@ import useGetAllTodos from "./hooks/getAllTodos";
 import Todo from "./components/todo";
 import { ClipLoader } from "react-spinners";
 import useDeleteAllTodos from "./hooks/deleteAllTodos";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDate } from "./utils/formatDate";
-
-const updateTodo = async ({ id, title, completed }) => {
-  const res = await fetch("/api/todos", {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, title, completed }),
-  });
-
-  if (!res.ok) throw new Error("Todo güncellenirken hata oluştu");
-  return res.json();
-};
+import Image from "next/image";
 
 export default function Home() {
   const [newTodo, setNewTodo] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const queryClient = useQueryClient();
 
   const { data: todos, isLoading: isTodosLoading, error } = useGetAllTodos();
 
   const { mutate: createTodo, isPending: isPendingTodo } = useAddTodo({
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       setNewTodo("");
-      console.log("Başarıyla Eklendi", data);
       queryClient.invalidateQueries(["todos"]);
     },
   });
 
   const { mutate: deleteAll, isPending: isPendingDelete } = useDeleteAllTodos({
-    onSuccess: async (data) => {
-      console.log("Başarıyla Silindi", data);
+    onSuccess: async () => {
       queryClient.invalidateQueries(["todos"]);
     },
   });
@@ -61,13 +47,15 @@ export default function Home() {
     <main className="w-full h-full flex flex-col ">
       {/* Banner */}
       <div className="w-full h-[300px] relative">
-        <div className="w-full h-full  ">
-          <img
+        <div className="w-full h-full relative">
+          <Image
+            priority
             src="https://images.wallpaperscraft.com/image/single/mountains_snow_winter_84608_1280x720.jpg"
             alt="banner"
-            className="w-full h-full object-cover"
+            layout="fill"
+            objectFit="cover"
           />
-          <div className="w-full h-full absolute top-0 left-0 bg-gradient-to-bl to-[#9F4EE1] from-[#77A0F8] opacity-60 " />
+          <div className="w-full h-full absolute top-0 left-0 bg-gradient-to-bl to-[#9F4EE1] from-[#77A0F8] opacity-60" />
         </div>
         <div className="w-full max-w-lg mx-auto h-1/2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
           <div className="w-full h-full flex flex-col justify-between px-4 sm:px-0 ">
